@@ -3,17 +3,14 @@ package experiment.dataExtraction;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-import experiment.dataMining.AssociationRuleMining;
-import experiment.models.Implication;
-import experiment.models.TestCase;
-import experiment.models.TestData;
-import experiment.models.TestSuite;
+import experiment.models.tests.TestCase;
+import experiment.models.tests.TestData;
+import experiment.models.tests.TestSuite;
 
 public class TestCaseParser {
 

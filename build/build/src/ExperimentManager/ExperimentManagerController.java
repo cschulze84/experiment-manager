@@ -2,26 +2,30 @@ package ExperimentManager;
 
 import java.io.File;
 
-import experiment.Experiment;
-import experiment.ExperimentManager;
-import experiment.models.ReactisPort;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
+import experiment.Experiment;
+import experiment.ExperimentManager;
+import experiment.models.ExecutionOrder;
+import experiment.models.ExperimentData;
+import experiment.models.StoppingCriterion;
+import experiment.models.reactis.ReactisPort;
 
 public class ExperimentManagerController {
 	// Toolbar
@@ -39,6 +43,13 @@ public class ExperimentManagerController {
 
 	@FXML
 	private Button startButton;
+	
+	//Tab Pane
+	@FXML
+	private TabPane tabPane;
+	
+	@FXML
+	private Tab tabExperiment;
 
 	// Path Tab
 	@FXML
@@ -62,12 +73,30 @@ public class ExperimentManagerController {
 	// Settings Tab
 	@FXML
 	private Slider numberOfExperiments;
+	
+	@FXML
+	private ComboBox<ExecutionOrder> executionOrder;
+	
+	@FXML
+	private Slider numberOfTests;
+	
+	@FXML
+	private Slider numberOfTestSteps;
+	
+	@FXML
+	private Slider numberOfTargetedSteps;
 
 	@FXML
-	private ComboBox<String> stoppingCriteria;
+	private ComboBox<StoppingCriterion> stoppingCriteria;
 
 	@FXML
 	private Slider iterationEnd;
+	
+	@FXML
+	private CheckBox usePrunedInvariants;
+	
+	@FXML
+	private Slider maxInvariants;
 
 	// Model Tab
 	@FXML
@@ -105,10 +134,10 @@ public class ExperimentManagerController {
 	private TableColumn<Experiment, Number> iterationEndColumn;
 
 	@FXML
-	private TableColumn<Experiment, String> timeColumn;
+	private TableColumn<Experiment, Number> timeColumn;
 
 	@FXML
-	private TableColumn<Experiment, String> overallTimeColumn;
+	private TableColumn<Experiment, Number> overallTimeColumn;
 
 	// FXML
 	private Stage primaryStage;
@@ -124,30 +153,35 @@ public class ExperimentManagerController {
 	private void initialize() {
 		manager = new ExperimentManager();
 
-		inportList.setItems(manager.getReactisData().getInports());
-		outportList.setItems(manager.getReactisData().getOutports());
+		inportList.setItems(manager.getData().getReactisData().getInports());
+		outportList.setItems(manager.getData().getReactisData().getOutports());
 
 		experimentPathText
 				.setText("C:\\Users\\Christoph\\OneDrive\\newAnalysis\\experiment1");
-		modelFileText
-				.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Emergency_Blinking.mdl");
-		rsiFileText
-				.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Emergency_Blinking.rsi");
-		// modelFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Rear_Fog_Light.mdl");
-		// rsiFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Rear_Fog_Light.rsi");
+		//modelFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Emergency_Blinking.mdl");
+		//rsiFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Emergency_Blinking.rsi");
+		modelFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Rear_Fog_Light.mdl");
+		rsiFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Rear_Fog_Light.rsi");
 
 		setupExperimentTable();
+		
+		
 
-		ObservableList<String> options = FXCollections.observableArrayList(
-				"No new invariants", "Number of iterations");
+		ObservableList<StoppingCriterion> options = FXCollections.observableArrayList(
+				StoppingCriterion.values());
 		stoppingCriteria.setItems(options);
 		stoppingCriteria.getSelectionModel().select(0);
+		
+		ObservableList<ExecutionOrder> optionsOrder = FXCollections.observableArrayList(
+				ExecutionOrder.values());
+		executionOrder.setItems(optionsOrder);
+		executionOrder.getSelectionModel().select(0);
 	}
 
 	
 
 	private void setupExperimentTable() {
-		experimentTable.setItems(manager.getExperiments());
+		experimentTable.setItems(manager.getData().getExperiments());
 
 		numberColumn
 				.setCellValueFactory(new PropertyValueFactory<Experiment, Number>(
@@ -159,22 +193,14 @@ public class ExperimentManagerController {
 				.setCellValueFactory(new PropertyValueFactory<Experiment, Number>(
 						"invariants"));
 
-		numberColumn.setCellValueFactory(cellData -> cellData.getValue()
-				.idProperty());
-		IterationColumn.setCellValueFactory(cellData -> cellData.getValue()
-				.iterationProperty());
-		invariantColumn.setCellValueFactory(cellData -> cellData.getValue()
-				.invariantsProperty());
-		invalidatedColumn.setCellValueFactory(cellData -> cellData.getValue()
-				.invalidatedInvariantsProperty());
-		oldInvariantColumn.setCellValueFactory(cellData -> cellData.getValue()
-				.oldInvariantsProperty());
-		iterationEndColumn.setCellValueFactory(cellData -> cellData.getValue()
-				.iterationEndProperty());
-		timeColumn.setCellValueFactory(cellData -> cellData.getValue()
-				.timeProperty());
-		overallTimeColumn.setCellValueFactory(cellData -> cellData.getValue()
-				.overallTimeProperty());
+		numberColumn.setCellValueFactory(cellData -> cellData.getValue().getData().id);
+		IterationColumn.setCellValueFactory(cellData -> cellData.getValue().getData().iteration);
+		invariantColumn.setCellValueFactory(cellData -> cellData.getValue().getData().invariants);
+		invalidatedColumn.setCellValueFactory(cellData -> cellData.getValue().getData().invalidatedInvariants);
+		oldInvariantColumn.setCellValueFactory(cellData -> cellData.getValue().getData().oldInvariants);
+		iterationEndColumn.setCellValueFactory(cellData -> cellData.getValue().getData().iterationEnd);
+		timeColumn.setCellValueFactory(cellData -> cellData.getValue().getData().time);
+		overallTimeColumn.setCellValueFactory(cellData -> cellData.getValue().getData().overallTime);
 	}
 
 	/**
@@ -194,7 +220,7 @@ public class ExperimentManagerController {
 		File selectedDirectory = chooser.showDialog(primaryStage);
 		if (selectedDirectory != null) {
 			experimentPathText.setText(selectedDirectory.getAbsolutePath());
-			manager.setFolderPath(selectedDirectory.getAbsolutePath());
+			manager.getData().setFolderPath(selectedDirectory.getAbsolutePath());
 		}
 	}
 
@@ -210,7 +236,7 @@ public class ExperimentManagerController {
 		File selectedFile = fileChooser.showOpenDialog(primaryStage);
 		if (selectedFile != null) {
 			modelFileText.setText(selectedFile.getAbsolutePath());
-			manager.setModelFile(selectedFile.getAbsolutePath());
+			manager.getData().setModelFile(selectedFile.getAbsolutePath());
 		}
 	}
 
@@ -224,15 +250,15 @@ public class ExperimentManagerController {
 		File selectedFile = fileChooser.showOpenDialog(primaryStage);
 		if (selectedFile != null) {
 			rsiFileText.setText(selectedFile.getAbsolutePath());
-			manager.setRsiFile(selectedFile.getAbsolutePath());
+			manager.getData().setRsiFile(selectedFile.getAbsolutePath());
 		}
 	}
 
 	@FXML
 	private void handleSetupButton() {
-		manager.setFolderPath(experimentPathText.getText());
-		manager.setModelFile(modelFileText.getText());
-		manager.setRsiFile(rsiFileText.getText());
+		manager.getData().setFolderPath(experimentPathText.getText());
+		manager.getData().setModelFile(modelFileText.getText());
+		manager.getData().setRsiFile(rsiFileText.getText());
 		manager.initialSetup();
 	}
 
@@ -244,7 +270,7 @@ public class ExperimentManagerController {
 			return;
 		}
 
-		manager.getReactisData().switchPortToOutput(port);
+		manager.getData().getReactisData().switchPortToOutput(port);
 	}
 
 	@FXML
@@ -255,17 +281,45 @@ public class ExperimentManagerController {
 			return;
 		}
 
-		manager.getReactisData().switchPortToInput(port);
+		manager.getData().getReactisData().switchPortToInput(port);
 	}
 
 	@FXML
 	private void handleStartButton() {
 		Double d = numberOfExperiments.getValue();
-		manager.setNumberOfExperiments(d.intValue());
-		manager.setStoppingCriterion(stoppingCriteria.getSelectionModel()
+		manager.getData().setNumberOfExperiments(d.intValue());
+		manager.getData().setExecutionOrder(executionOrder.getSelectionModel().getSelectedItem());
+		manager.getData().setStoppingCriterion(stoppingCriteria.getSelectionModel()
 				.getSelectedItem());
 		d = iterationEnd.getValue();
-		manager.setStopingNumber(d.intValue());
-		manager.run();
+		manager.getData().setIterationEnd(d.intValue());
+		
+		manager.getData().setPrune(usePrunedInvariants.isSelected());
+		
+		d = maxInvariants.getValue();
+		manager.getData().setMaxInvariants(d.intValue());
+		
+		d = numberOfTests.getValue();
+		manager.getData().setNumberOfTests(d.intValue());
+		
+		d = numberOfTestSteps.getValue();
+		manager.getData().setNumberOfTestSteps(d.intValue());
+		
+		d = numberOfTargetedSteps.getValue();
+		manager.getData().setNumberOfTargetedSteps(d.intValue());
+		
+		
+		switchToExperimentView();
+		
+		
+		Thread myExperimentRunner =  new Thread(manager, "manager thread");
+		myExperimentRunner.start();
+
+	}
+
+
+
+	private void switchToExperimentView() {
+		tabPane.getSelectionModel().select(tabExperiment);
 	}
 }

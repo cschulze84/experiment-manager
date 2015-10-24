@@ -1,42 +1,39 @@
 package experiment.dataMining;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 
-import ca.pfv.spmf.algorithms.associationrules.TopKRules_and_TNR.AlgoTopKRules;
 import ca.pfv.spmf.algorithms.associationrules.TopKRules_and_TNR.AlgoTopKRulesLHSRHS;
 import ca.pfv.spmf.algorithms.associationrules.TopKRules_and_TNR.Database;
 import ca.pfv.spmf.algorithms.associationrules.TopKRules_and_TNR.RuleG;
 import ca.pfv.spmf.algorithms.associationrules.agrawal94_association_rules.AlgoAgrawalFaster94;
-import ca.pfv.spmf.algorithms.associationrules.agrawal94_association_rules.AssocRule;
 import ca.pfv.spmf.algorithms.associationrules.agrawal94_association_rules.AssocRules;
 import ca.pfv.spmf.algorithms.frequentpatterns.fpgrowth.AlgoFPGrowth;
 import ca.pfv.spmf.patterns.itemset_array_integers_with_count.Itemsets;
-import experiment.models.Implication;
-import experiment.models.ImplicationValue;
-import experiment.models.TestCase;
-import experiment.models.TestData;
-import experiment.models.TestSuite;
+import experiment.models.invariants.Implication;
+import experiment.models.invariants.ImplicationValue;
+import experiment.models.tests.TestCase;
+import experiment.models.tests.TestData;
+import experiment.models.tests.TestSuite;
 
 public class AssociationRuleMining {
 
 	private HashMap<String, Integer> alias;
 	private Map<Integer, Integer> lhsAllowed;
 	private Map<Integer, Integer> rhsAllowed;
+
+	public AssociationRuleMining() {
+
+	}
 
 	public static void main(String[] args) {
 
@@ -153,6 +150,20 @@ public class AssociationRuleMining {
 		List<Implication> implications = new ArrayList<>();
 
 		for (RuleG rule : ruleListPruned) {
+			Implication implication = parseImplicationLine(rule);
+			if (implication == null) {
+				continue;
+			}
+			implications.add(implication);
+		}
+
+		return implications;
+	}
+	
+	public List<Implication> parseMiningOutputs(PriorityQueue<RuleG> rules) {
+		List<Implication> implications = new ArrayList<>();
+
+		for (RuleG rule : rules) {
 			Implication implication = parseImplicationLine(rule);
 			if (implication == null) {
 				continue;
@@ -354,16 +365,15 @@ public class AssociationRuleMining {
 		return rules;
 	}
 
-	public PriorityQueue<RuleG> mineRules(String input, String output) {
+	public PriorityQueue<RuleG> mineRules(String input, String output, int maxInvariants) {
 		try {
 			Database database = new Database();
 			database.loadFile(input);
 
-			int k = 10000;
 			double minConf = 1.0; //
 
 			AlgoTopKRulesLHSRHS algo = new AlgoTopKRulesLHSRHS(lhsAllowed, rhsAllowed);
-			algo.runAlgorithm(k, minConf, database);
+			algo.runAlgorithm(maxInvariants, minConf, database);
 
 			algo.printStats();
 
@@ -376,5 +386,7 @@ public class AssociationRuleMining {
 		}
 		return null;
 	}
+
+
 	
 }

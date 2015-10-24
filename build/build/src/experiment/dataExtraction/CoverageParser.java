@@ -6,8 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-import experiment.models.CoverageData;
-import experiment.models.TestSuiteCoverage;
+import experiment.models.tests.CoverageData;
+import experiment.models.tests.TestSuiteCoverage;
 
 public class CoverageParser {
 

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.PriorityQueue;
 
-import sun.text.normalizer.Trie.DataManipulate;
 import JVM.ReactisJVM;
 import application.FileIoService;
 import ca.pfv.spmf.algorithms.associationrules.TopKRules_and_TNR.RuleG;
@@ -315,7 +314,7 @@ public class Experiment implements Runnable {
 		EditRSI edit = new EditRSI();
 
 		edit.addAssertions(data.getRsiFile(), data.getIterationRsiFile(), data.getTestSuite(), experimentManagerData.getReactisData(),
-				data.isPrune());
+				experimentManagerData.isPrune());
 	}
 
 	private String setupIterationFolders() {

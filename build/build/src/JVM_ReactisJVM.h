@@ -10,18 +10,10 @@ extern "C" {
 /*
  * Class:     JVM_ReactisJVM
  * Method:    generateTestCases
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
  */
 JNIEXPORT jint JNICALL Java_JVM_ReactisJVM_generateTestCases
-  (JNIEnv *, jobject, jstring, jstring, jstring, jstring, jstring);
-
-/*
- * Class:     JVM_ReactisJVM
- * Method:    generateTestCasesRandom
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
- */
-JNIEXPORT jint JNICALL Java_JVM_ReactisJVM_generateTestCasesRandom
-  (JNIEnv *, jobject, jstring, jstring, jstring, jstring, jstring);
+  (JNIEnv *, jobject, jstring, jstring, jstring, jstring, jstring, jstring);
 
 #ifdef __cplusplus
 }

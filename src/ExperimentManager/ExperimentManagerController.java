@@ -23,7 +23,6 @@ import javafx.stage.Stage;
 import experiment.Experiment;
 import experiment.ExperimentManager;
 import experiment.models.ExecutionOrder;
-import experiment.models.ExperimentData;
 import experiment.models.StoppingCriterion;
 import experiment.models.reactis.ReactisPort;
 
@@ -158,10 +157,10 @@ public class ExperimentManagerController {
 
 		experimentPathText
 				.setText("C:\\Users\\Christoph\\OneDrive\\newAnalysis\\experiment1");
-		modelFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Emergency_Blinking.mdl");
-		rsiFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Emergency_Blinking.rsi");
-		//modelFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Rear_Fog_Light.mdl");
-		//rsiFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Rear_Fog_Light.rsi");
+		//modelFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Emergency_Blinking.mdl");
+		//rsiFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Emergency_Blinking.rsi");
+		modelFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Rear_Fog_Light.mdl");
+		rsiFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Rear_Fog_Light.rsi");
 
 		setupExperimentTable();
 		

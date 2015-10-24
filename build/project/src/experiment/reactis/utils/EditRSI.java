@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.Properties;
 
 import application.FileIoService;
-import experiment.models.Implication;
-import experiment.models.ImplicationValue;
-import experiment.models.Inport;
-import experiment.models.Outport;
-import experiment.models.ReactisData;
-import experiment.models.ReactisPort;
-import experiment.models.TestSuite;
+import experiment.models.invariants.Implication;
+import experiment.models.invariants.ImplicationValue;
+import experiment.models.reactis.Inport;
+import experiment.models.reactis.Outport;
+import experiment.models.reactis.ReactisData;
+import experiment.models.reactis.ReactisPort;
+import experiment.models.tests.TestSuite;
 
 public class EditRSI {
 
@@ -34,13 +34,22 @@ public class EditRSI {
 
 	}
 	
-	public void addAssertions(String source, String target, TestSuite testSuite, ReactisData reactisData){
+	public void addAssertions(String source, String target, TestSuite testSuite, ReactisData reactisData, boolean prune){
 		int x=0,y=0;
 		FileIoService fileIoService = new FileIoService();
 		
 		fileIoService.copyFile(source, target);
 		
-		if(testSuite.getImplications().isEmpty()){
+		List<Implication> implications;
+		
+		if(prune){
+			implications = testSuite.getImplicationsPruned();
+		}
+		else{
+			implications = testSuite.getImplications();
+		}
+		
+		if(implications == null || implications.isEmpty()){
 			return;
 		}
 		
@@ -53,7 +62,7 @@ public class EditRSI {
 			writer.write(ASSERTION_HEADER.replace(MODEL_NAME_ANCHOR, reactisData.getModelNameASCII()) + System.lineSeparator());
 			
 			int i = 0;
-			for (Implication implication : testSuite.getImplications()) {
+			for (Implication implication : implications) {
 				String assertionName= assertionBaseName + i;
 				
 				if(i==0){

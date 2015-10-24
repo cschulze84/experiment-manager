@@ -387,6 +387,4 @@ public class AssociationRuleMining {
 		return null;
 	}
 
-
-	
 }
