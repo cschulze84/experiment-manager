@@ -13,6 +13,7 @@ public class ExperimentManagerData {
 	//Paths
 	private String folderPath;
 	private String modelFile;
+	private String modelSupport;
 	private String rsiFile;
 	
 	//Settings
@@ -48,6 +49,15 @@ public class ExperimentManagerData {
 
 	public void setModelFile(String modelFile) {
 		this.modelFile = modelFile;
+	}
+	
+
+	public void setModelSupport(String modelSupport) {
+		this.modelSupport = modelSupport;
+	}
+	
+	public String getModelSupport() {
+		return modelSupport;
 	}
 
 	public String getRsiFile() {
@@ -182,4 +192,5 @@ public class ExperimentManagerData {
 	public ExecutionOrder getExecutionOrder() {
 		return executionOrder;
 	}
+
 }

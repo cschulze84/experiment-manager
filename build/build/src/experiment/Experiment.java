@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.PriorityQueue;
 
-import sun.text.normalizer.Trie.DataManipulate;
 import JVM.ReactisJVM;
 import application.FileIoService;
 import ca.pfv.spmf.algorithms.associationrules.TopKRules_and_TNR.RuleG;
+import ca.pfv.spmf.datastructures.redblacktree.RedBlackTree;
 import experiment.dataExtraction.CoverageParser;
 import experiment.dataExtraction.TestCaseParser;
 import experiment.dataMining.AssociationRuleMining;
@@ -197,28 +197,66 @@ public class Experiment implements Runnable {
 		
 		return timeInSeconds;
 	}
+	
+	/*private void runDataMining(IterationData iterationData) {
+		AssociationRuleMining miner = new AssociationRuleMining();
+		miner.printForAssociationRuleMining(data.getTestSuite(),
+				getAssociationRuleMiningInputPath());
+		
+		RedBlackTree<RuleG> rules = miner.mineRulesPruned(getAssociationRuleMiningInputPath(),
+				getAssociationRuleMiningoutputPath(), experimentManagerData.getMaxInvariants());
+
+		if(experimentManagerData.isPrune()){
+			List<RuleG> prunedInvariants = miner.pruneRuleGComplete(rules);
+			List<Implication> implications = miner.parseMiningOutputs(prunedInvariants);
+			saveDataMiningData(implications, implications);
+			iterationData.setNumberOfInvariants(implications.size());
+			iterationData.setNumberOfPrunedInvariants(implications.size());
+		}
+		else{
+			List<Implication> implications = miner.parseMiningOutputs(rules);
+			saveDataMiningData(implications, null);
+			iterationData.setNumberOfInvariants(implications.size());
+			iterationData.setNumberOfPrunedInvariants(0);
+		}	
+		CoverageParser parser = new CoverageParser();
+		parser.parseCoverage(
+				getIterationFolderPath(data.iteration.get()) + data.COVERAGE,
+				iterationData.getCovarage());
+
+		data.invalidatedInvariants.set(iterationData.getCovarage().getAssertion()
+				.getCovered());
+		
+		if(data.getLastIterationData() != null){
+			data.getLastIterationData().setNumbeOfInvalidatedInvariants(data.invalidatedInvariants.get());
+		}
+
+		
+		iterationData.setNumbeOfInvalidatedInvariants(data.invalidatedInvariants.get());
+	}*/
 
 	private void runDataMining(IterationData iterationData) {
 		AssociationRuleMining miner = new AssociationRuleMining();
 		miner.printForAssociationRuleMining(data.getTestSuite(),
 				getAssociationRuleMiningInputPath());
-
+		
 		PriorityQueue<RuleG> rules = miner.mineRules(
 				getAssociationRuleMiningInputPath(),
 				getAssociationRuleMiningoutputPath(), experimentManagerData.getMaxInvariants());
 
-		List<Implication> implications = miner.parseMiningOutputs(rules);
-
-		List<RuleG> ruleListPruned = miner.pruneRuleGComplete(rules);
-
-		List<Implication> pruned = miner.parseMiningOutputs(ruleListPruned);
-
-		saveDataMiningData(implications, pruned);
-		
-		iterationData.setNumberOfInvariants(pruned.size());
-		
-		iterationData.setNumberOfPrunedInvariants(pruned.size());
-
+		if(experimentManagerData.isPrune()){
+			List<RuleG> prunedInvariants = miner.pruneRuleGComplete(rules);
+			List<Implication> implications = miner.parseMiningOutputs(prunedInvariants);
+			saveDataMiningData(implications, implications);
+			iterationData.setNumberOfInvariants(implications.size());
+			iterationData.setNumberOfPrunedInvariants(implications.size());
+		}
+		else{
+			List<Implication> implications = miner.parseMiningOutputs(rules);
+			saveDataMiningData(implications, null);
+			iterationData.setNumberOfInvariants(implications.size());
+			iterationData.setNumberOfPrunedInvariants(0);
+		}	
 		CoverageParser parser = new CoverageParser();
 		parser.parseCoverage(
 				getIterationFolderPath(data.iteration.get()) + data.COVERAGE,
@@ -237,19 +275,17 @@ public class Experiment implements Runnable {
 
 	private void saveDataMiningData(List<Implication> implications,
 			List<Implication> prunedImplications) {
-		saveImplications(implications, getIterationFolderPath(data.iteration.get())
-				+ data.INVARIANTS);
-		saveImplications(prunedImplications,
-				getIterationFolderPath(data.iteration.get()) + data.PRUNED_INVARIANTS);
-
-		data.getTestSuite().setImplications(implications);
-
-		data.getTestSuite().setImplicationsPruned(prunedImplications);
-
 		if (experimentManagerData.isPrune()) {
 			data.invariants.set(prunedImplications.size());
+			saveImplications(prunedImplications,
+					getIterationFolderPath(data.iteration.get()) + data.PRUNED_INVARIANTS);
+			data.getTestSuite().setImplicationsPruned(prunedImplications);
 		} else {
 			data.invariants.set(implications.size());
+			saveImplications(implications, getIterationFolderPath(data.iteration.get())
+					+ data.INVARIANTS);
+			data.getTestSuite().setImplications(implications);
+
 		}
 
 	}

@@ -3,16 +3,16 @@ package application;
 import java.io.File;
 import java.util.List;
 
-import org.myphd.parser.CompareImplications;
-import org.myphd.parser.Data;
-import org.myphd.parser.ImplicationParser;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+
+import org.myphd.parser.CompareImplications;
+import org.myphd.parser.Data;
+import org.myphd.parser.ImplicationParser;
 
 public class MainViewController {
 	@FXML

@@ -66,7 +66,11 @@ public class CoverageData {
 		this.name = name;
 	}
 	
-	
+	@Override
+	public String toString() {
+		String coverageString = TOTAL + ": " + total + " " + COVERED + ": " + covered + " " + UNCOVERED + ": " + uncovered + " " + UNREACHABLE + ": " + unreachable + " " + PERCENT + ": " + percent;
+		return coverageString;
+	}
 	
 }
 

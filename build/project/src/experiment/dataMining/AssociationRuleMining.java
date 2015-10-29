@@ -12,12 +12,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 
+import ca.pfv.spmf.algorithms.associationrules.TopKRules_and_TNR.AlgoTNR;
+import ca.pfv.spmf.algorithms.associationrules.TopKRules_and_TNR.AlgoTNRLHSRHS;
 import ca.pfv.spmf.algorithms.associationrules.TopKRules_and_TNR.AlgoTopKRulesLHSRHS;
 import ca.pfv.spmf.algorithms.associationrules.TopKRules_and_TNR.Database;
 import ca.pfv.spmf.algorithms.associationrules.TopKRules_and_TNR.RuleG;
 import ca.pfv.spmf.algorithms.associationrules.agrawal94_association_rules.AlgoAgrawalFaster94;
 import ca.pfv.spmf.algorithms.associationrules.agrawal94_association_rules.AssocRules;
 import ca.pfv.spmf.algorithms.frequentpatterns.fpgrowth.AlgoFPGrowth;
+import ca.pfv.spmf.algorithms.sequential_rules.topseqrules_and_tns.AlgoTNS;
+import ca.pfv.spmf.algorithms.sequential_rules.topseqrules_and_tns.Rule;
+import ca.pfv.spmf.datastructures.redblacktree.RedBlackTree;
+import ca.pfv.spmf.input.sequence_database_array_integers.SequenceDatabase;
 import ca.pfv.spmf.patterns.itemset_array_integers_with_count.Itemsets;
 import experiment.models.invariants.Implication;
 import experiment.models.invariants.ImplicationValue;
@@ -145,7 +151,7 @@ public class AssociationRuleMining {
 
 		return implications;
 	}
-	
+
 	public List<Implication> parseMiningOutputs(List<RuleG> ruleListPruned) {
 		List<Implication> implications = new ArrayList<>();
 
@@ -160,7 +166,8 @@ public class AssociationRuleMining {
 		return implications;
 	}
 	
-	public List<Implication> parseMiningOutputs(PriorityQueue<RuleG> rules) {
+
+	public List<Implication> parseMiningOutputs(RedBlackTree<RuleG> rules) {
 		List<Implication> implications = new ArrayList<>();
 
 		for (RuleG rule : rules) {
@@ -174,6 +181,19 @@ public class AssociationRuleMining {
 		return implications;
 	}
 
+	public List<Implication> parseMiningOutputs(PriorityQueue<RuleG> rules) {
+		List<Implication> implications = new ArrayList<>();
+
+		for (RuleG rule : rules) {
+			Implication implication = parseImplicationLine(rule);
+			if (implication == null) {
+				continue;
+			}
+			implications.add(implication);
+		}
+
+		return implications;
+	}
 
 	public List<Implication> prune(List<Implication> toPrune) {
 		List<Implication> copyToPrune = new ArrayList<>(toPrune.size());
@@ -200,28 +220,32 @@ public class AssociationRuleMining {
 
 		return toKeep;
 	}
-	
+
 	public List<RuleG> pruneRuleGComplete(PriorityQueue<RuleG> rules) {
-		
+
 		List<RuleG> prunedImplications = pruneRuleG(rules);
 		int previousNumberOfInvariants = 0;
-		do{
+		do {
 			previousNumberOfInvariants = prunedImplications.size();
 			prunedImplications = pruneRuleG(prunedImplications);
-		}while(previousNumberOfInvariants > prunedImplications.size());
-		
+		} while (previousNumberOfInvariants > prunedImplications.size());
+
 		return prunedImplications;
-		
+
 	}
 
 	private List<RuleG> pruneRuleG(List<RuleG> rules) {
 		List<RuleG> toKeep = new ArrayList<>();
-		
+
 		while (rules.size() > 0) {
-			RuleG rule = rules.remove(rules.size()-1);
+			RuleG rule = rules.remove(rules.size() - 1);
 			boolean keep = true;
 			for (RuleG dataToCompare : rules) {
-				if (isSubsetOf(dataToCompare,rule)) {
+				if (lhsIsSubsetOf(dataToCompare, rule)) {
+					keep = false;
+					break;
+				}
+				if(rhsIsSubsetOf(dataToCompare, rule)){
 					keep = false;
 					break;
 				}
@@ -233,14 +257,18 @@ public class AssociationRuleMining {
 		return toKeep;
 	}
 
-	List<RuleG> pruneRuleG(PriorityQueue<RuleG> rules){
+	List<RuleG> pruneRuleG(PriorityQueue<RuleG> rules) {
 		List<RuleG> toKeep = new ArrayList<>();
-		
+
 		while (rules.size() > 0) {
 			RuleG rule = rules.remove();
 			boolean keep = true;
 			for (RuleG dataToCompare : rules) {
-				if (isSubsetOf(dataToCompare,rule)) {
+				if (lhsIsSubsetOf(dataToCompare, rule)) {
+					keep = false;
+					break;
+				}
+				if(rhsIsSubsetOf(dataToCompare, rule)){
 					keep = false;
 					break;
 				}
@@ -252,41 +280,79 @@ public class AssociationRuleMining {
 		return toKeep;
 	}
 
-	private boolean isSubsetOf(RuleG dataToCompare, RuleG rule) {
-		if(dataToCompare == null || rule == null){
+	private boolean lhsIsSubsetOf(RuleG dataToCompare, RuleG rule) {
+		if (dataToCompare == null || rule == null) {
 			return false;
 		}
-		if(dataToCompare.getItemset1().length >= rule.getItemset1().length || dataToCompare.getItemset2().length != rule.getItemset2().length){
+		if (dataToCompare.getItemset1().length >= rule.getItemset1().length
+				|| dataToCompare.getItemset2().length != rule.getItemset2().length) {
 			return false;
 		}
-		
-		
+
 		for (Integer outputValueToCompare : dataToCompare.getItemset2()) {
 			boolean found = false;
 			for (Integer value : rule.getItemset2()) {
-				if(outputValueToCompare == value){
-					found =  true;
+				if (outputValueToCompare == value) {
+					found = true;
 				}
 			}
-			if(!found){
+			if (!found) {
 				return false;
 			}
 		}
-		
+
 		int numberOfOperators = dataToCompare.getItemset1().length;
-		
+
 		for (Integer inputValueToCompare : dataToCompare.getItemset1()) {
 			for (Integer value : rule.getItemset1()) {
-				if(inputValueToCompare == value){
+				if (inputValueToCompare == value) {
 					numberOfOperators--;
 				}
 			}
 		}
-		
-		if(numberOfOperators>0){
+
+		if (numberOfOperators > 0) {
 			return false;
 		}
-		
+
+		return true;
+	}
+	
+	private boolean rhsIsSubsetOf(RuleG dataToCompare, RuleG rule) {
+		if (dataToCompare == null || rule == null) {
+			return false;
+		}
+		if (dataToCompare.getItemset1().length != rule.getItemset1().length
+				|| dataToCompare.getItemset2().length >= rule.getItemset2().length) {
+			return false;
+		}
+
+		for (Integer outputValueToCompare : dataToCompare.getItemset1()) {
+			boolean found = false;
+			for (Integer value : rule.getItemset1()) {
+				if (outputValueToCompare == value) {
+					found = true;
+				}
+			}
+			if (!found) {
+				return false;
+			}
+		}
+
+		int numberOfOperators = dataToCompare.getItemset2().length;
+
+		for (Integer inputValueToCompare : dataToCompare.getItemset2()) {
+			for (Integer value : rule.getItemset2()) {
+				if (inputValueToCompare == value) {
+					numberOfOperators--;
+				}
+			}
+		}
+
+		if (numberOfOperators > 0) {
+			return false;
+		}
+
 		return true;
 	}
 
@@ -295,10 +361,9 @@ public class AssociationRuleMining {
 		Implication implication = new Implication();
 
 		for (int value : rule.getItemset1()) {
-			/*if (!lhsAllowed.containsKey(value)) {
-				return null;
-			}
-*/
+			/*
+			 * if (!lhsAllowed.containsKey(value)) { return null; }
+			 */
 			String aliasValue = getAliasValue(value);
 
 			ImplicationValue implicationValue = ImplicationValue
@@ -307,9 +372,9 @@ public class AssociationRuleMining {
 		}
 
 		for (int value : rule.getItemset2()) {
-			/*if (!rhsAllowed.containsKey(value)) {
-				return null;
-			}*/
+			/*
+			 * if (!rhsAllowed.containsKey(value)) { return null; }
+			 */
 			String aliasValue = getAliasValue(value);
 
 			ImplicationValue implicationValue = ImplicationValue
@@ -365,21 +430,22 @@ public class AssociationRuleMining {
 		return rules;
 	}
 
-	public PriorityQueue<RuleG> mineRules(String input, String output, int maxInvariants) {
+	public PriorityQueue<RuleG> mineRules(String input, String output,
+			int maxInvariants) {
 		try {
 			Database database = new Database();
 			database.loadFile(input);
 
 			double minConf = 1.0; //
 
-			AlgoTopKRulesLHSRHS algo = new AlgoTopKRulesLHSRHS(lhsAllowed, rhsAllowed);
+			AlgoTopKRulesLHSRHS algo = new AlgoTopKRulesLHSRHS(lhsAllowed,
+					rhsAllowed);
 			algo.runAlgorithm(maxInvariants, minConf, database);
 
 			algo.printStats();
 
 			return algo.getkRules();
-			
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -387,6 +453,33 @@ public class AssociationRuleMining {
 		return null;
 	}
 
+	public RedBlackTree<RuleG> mineRulesPruned(String input, String output,
+			int maxInvariants) {
+		try {
+			// Load database into memory
+			Database database = new Database(); 
+			database.loadFile(input);
 
-	
+			double minConf = 1; 
+			int delta =  2;
+			
+			AlgoTNRLHSRHS algo = new AlgoTNRLHSRHS(lhsAllowed,
+					rhsAllowed);
+			RedBlackTree<RuleG> kRules = algo.runAlgorithm(maxInvariants, minConf, database,  delta );
+			//algo.writeResultTofile(".//output.txt");   // to save results to file
+			
+			algo.printStats();
+			
+			return kRules;
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+		// Load database into memory
+
+	}
+
+
 }

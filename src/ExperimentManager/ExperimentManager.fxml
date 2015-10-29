@@ -30,21 +30,29 @@
                         <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
                       <RowConstraints maxHeight="20.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
                       <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="20.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                       <RowConstraints maxHeight="20.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="20.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="20.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="20.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="20.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
                         <Label text="Experiment Path" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <TextField fx:id="experimentPathText" editable="false" onMouseClicked="#handlePathButton" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextField fx:id="experimentPathText" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         <Button fx:id="experimentPathButton" mnemonicParsing="false" onAction="#handlePathButton" text="Folder..." GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                        <Label text="Model File" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <TextField fx:id="modelFileText" editable="false" onMouseClicked="#handleModelFileButton" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        <Button fx:id="modelFileButton" mnemonicParsing="false" onAction="#handleModelFileButton" text="File..." GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                        <TextField fx:id="rsiFileText" editable="false" onMouseClicked="#handleRSIFileButton" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                        <Button fx:id="rsiFileButton" mnemonicParsing="false" onAction="#handleRSIFileButton" text="File..." GridPane.columnIndex="2" GridPane.rowIndex="6" />
-                        <Label text="RSI File" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <Label text="Model File" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <TextField fx:id="modelFileText" editable="false" onMouseClicked="#handleModelFileButton" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <Button fx:id="modelFileButton" mnemonicParsing="false" onAction="#handleModelFileButton" text="File..." GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                        <TextField fx:id="rsiFileText" editable="false" onMouseClicked="#handleRSIFileButton" GridPane.columnIndex="1" GridPane.rowIndex="11" />
+                        <Button fx:id="rsiFileButton" mnemonicParsing="false" onAction="#handleRSIFileButton" text="File..." GridPane.columnIndex="2" GridPane.rowIndex="11" />
+                        <Label text="RSI File" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                        <TextField fx:id="modelSupportText" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                        <Button fx:id="modelSupportButton" mnemonicParsing="false" onAction="#handleModelSupportButton" text="File..." GridPane.columnIndex="2" GridPane.rowIndex="8" />
+                        <Label text="Model Support File" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                      </children>
                   </GridPane>
                </content>
@@ -92,7 +100,7 @@
                         <Label text="Use Pruned Invariants" GridPane.columnIndex="1" GridPane.rowIndex="15" />
                         <CheckBox fx:id="usePrunedInvariants" mnemonicParsing="false" selected="true" text="Yes/No" GridPane.columnIndex="2" GridPane.rowIndex="15" />
                         <Label text="Max Number of Invariants" GridPane.columnIndex="1" GridPane.rowIndex="17" />
-                        <Slider fx:id="maxInvariants" blockIncrement="10000.0" majorTickUnit="10000.0" max="50000.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="10000.0" GridPane.columnIndex="2" GridPane.rowIndex="17" />
+                        <Slider fx:id="maxInvariants" blockIncrement="5000.0" majorTickUnit="5000.0" max="30000.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="10000.0" GridPane.columnIndex="2" GridPane.rowIndex="17" />
                         <Label text="Number of Tests" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                         <Label text="Number of Test Steps" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                         <Label text="Number of Targeted Steps" GridPane.columnIndex="1" GridPane.rowIndex="9" />

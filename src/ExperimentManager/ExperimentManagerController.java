@@ -56,6 +56,9 @@ public class ExperimentManagerController {
 
 	@FXML
 	private Button modelFileButton;
+	
+	@FXML
+	private Button modelSupportButton;
 
 	@FXML
 	private Button rsiFileButton;
@@ -65,6 +68,9 @@ public class ExperimentManagerController {
 
 	@FXML
 	private TextField modelFileText;
+	
+	@FXML
+	private TextField modelSupportText;
 
 	@FXML
 	private TextField rsiFileText;
@@ -156,11 +162,16 @@ public class ExperimentManagerController {
 		outportList.setItems(manager.getData().getReactisData().getOutports());
 
 		experimentPathText
-				.setText("C:\\Users\\Christoph\\OneDrive\\newAnalysis\\experiment1");
+				.setText("C:\\Users\\Christoph\\OneDrive\\newAnalysis\\data\\Parking_Light");
 		//modelFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Emergency_Blinking.mdl");
 		//rsiFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Emergency_Blinking.rsi");
-		modelFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Rear_Fog_Light.mdl");
-		rsiFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Rear_Fog_Light.rsi");
+		//modelFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Rear_Fog_Light.mdl");
+		//rsiFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Rear_Fog_Light.rsi");
+		//modelFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Daytime_Driving_Light.mdl");
+		//rsiFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Daytime_Driving_Light.rsi");
+		modelFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Parking_Light.mdl");
+		rsiFileText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Parking_Light.rsi");
+		modelSupportText.setText("C:\\Programs\\ReactisV2015\\examples\\test\\Constants.m");
 
 		setupExperimentTable();
 		
@@ -240,6 +251,22 @@ public class ExperimentManagerController {
 	}
 
 	@FXML
+	private void handleModelSupportButton() {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Choose Model Support File");
+		/*
+		 * fileChooser.getExtensionFilters().addAll( new
+		 * ExtensionFilter("Text Files", "*.txt"));
+		 */
+
+		File selectedFile = fileChooser.showOpenDialog(primaryStage);
+		if (selectedFile != null) {
+			modelSupportText.setText(selectedFile.getAbsolutePath());
+			manager.getData().setModelSupport(selectedFile.getAbsolutePath());
+		}
+	}
+	
+	@FXML
 	private void handleRSIFileButton() {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Choose Model File");
@@ -257,6 +284,7 @@ public class ExperimentManagerController {
 	private void handleSetupButton() {
 		manager.getData().setFolderPath(experimentPathText.getText());
 		manager.getData().setModelFile(modelFileText.getText());
+		manager.getData().setModelSupport(modelSupportText.getText());
 		manager.getData().setRsiFile(rsiFileText.getText());
 		manager.initialSetup();
 	}

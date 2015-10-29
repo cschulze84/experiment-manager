@@ -23,7 +23,6 @@ import javafx.stage.Stage;
 import experiment.Experiment;
 import experiment.ExperimentManager;
 import experiment.models.ExecutionOrder;
-import experiment.models.ExperimentData;
 import experiment.models.StoppingCriterion;
 import experiment.models.reactis.ReactisPort;
 

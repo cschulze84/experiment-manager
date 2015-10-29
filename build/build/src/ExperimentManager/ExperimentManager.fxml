@@ -92,7 +92,7 @@
                         <Label text="Use Pruned Invariants" GridPane.columnIndex="1" GridPane.rowIndex="15" />
                         <CheckBox fx:id="usePrunedInvariants" mnemonicParsing="false" selected="true" text="Yes/No" GridPane.columnIndex="2" GridPane.rowIndex="15" />
                         <Label text="Max Number of Invariants" GridPane.columnIndex="1" GridPane.rowIndex="17" />
-                        <Slider fx:id="maxInvariants" blockIncrement="10000.0" majorTickUnit="10000.0" max="50000.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="10000.0" GridPane.columnIndex="2" GridPane.rowIndex="17" />
+                        <Slider fx:id="maxInvariants" blockIncrement="1000.0" majorTickUnit="1000.0" max="10000.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="2000.0" GridPane.columnIndex="2" GridPane.rowIndex="17" />
                         <Label text="Number of Tests" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                         <Label text="Number of Test Steps" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                         <Label text="Number of Targeted Steps" GridPane.columnIndex="1" GridPane.rowIndex="9" />
