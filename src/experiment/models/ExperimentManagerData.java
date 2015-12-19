@@ -33,6 +33,8 @@ public class ExperimentManagerData {
 	//Experiment Data
 	private ObservableList<Experiment> experiments = FXCollections
 			.observableArrayList();
+	private String name;
+	private boolean analyze;
 
 
 	public String getFolderPath() {
@@ -193,4 +195,20 @@ public class ExperimentManagerData {
 		return executionOrder;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
+
+	public void setAnalyze(boolean analyze) {
+		this.analyze = analyze;
+	}
+	
+	public boolean isAnalyze() {
+		return analyze;
+	}
 }

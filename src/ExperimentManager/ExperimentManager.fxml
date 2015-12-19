@@ -9,8 +9,10 @@
    <top>
       <ToolBar prefHeight="40.0" prefWidth="1280.0" BorderPane.alignment="CENTER">
         <items>
-            <Button fx:id="setupButton" mnemonicParsing="false" onAction="#handleSetupButton" text="Setup" />
-            <Button fx:id="startButton" mnemonicParsing="false" onAction="#handleStartButton" text="Start" />
+            <Button fx:id="setupButton" mnemonicParsing="false" onAction="#handleSetupButton" text="Setup Experiment" />
+            <Button fx:id="saveButton" mnemonicParsing="false" onAction="#handleSaveButton" text="Save Experiment" />
+            <Button fx:id="loadButton" mnemonicParsing="false" onAction="#handleLoadButton" text="Load Experiments" />
+            <Button fx:id="startButton" mnemonicParsing="false" onAction="#handleStartButton" text="Start Experiments" />
         </items>
       </ToolBar>
    </top>
@@ -39,6 +41,11 @@
                         <RowConstraints maxHeight="20.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="20.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="20.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="20.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
                         <Label text="Experiment Path" GridPane.columnIndex="1" GridPane.rowIndex="1" />
@@ -53,6 +60,10 @@
                         <TextField fx:id="modelSupportText" GridPane.columnIndex="1" GridPane.rowIndex="8" />
                         <Button fx:id="modelSupportButton" mnemonicParsing="false" onAction="#handleModelSupportButton" text="File..." GridPane.columnIndex="2" GridPane.rowIndex="8" />
                         <Label text="Model Support File" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                        <TextField fx:id="saveFolderText" GridPane.columnIndex="1" GridPane.rowIndex="14" />
+                        <Button fx:id="saveFolderButton" mnemonicParsing="false" onAction="#handleSaveFolderButton" text="Folder..." GridPane.columnIndex="2" GridPane.rowIndex="14" />
+                        <Label text="Save Name" GridPane.columnIndex="1" GridPane.rowIndex="13" />
+                        <Separator prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="12" />
                      </children>
                   </GridPane>
                </content>
@@ -95,7 +106,7 @@
                         <Label alignment="TOP_CENTER" text="Number of experiments" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <Label text="Stoping Criteria" GridPane.columnIndex="1" GridPane.rowIndex="11" />
                         <ComboBox fx:id="stoppingCriteria" prefWidth="250.0" GridPane.columnIndex="2" GridPane.rowIndex="11" />
-                        <Slider fx:id="numberOfExperiments" blockIncrement="1.0" majorTickUnit="1.0" max="5.0" min="1.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <Slider fx:id="numberOfExperiments" blockIncrement="1.0" majorTickUnit="1.0" max="5.0" min="1.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="5.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                         <Slider fx:id="iterationEnd" blockIncrement="1.0" majorTickUnit="1.0" max="10.0" min="1.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="3.0" GridPane.columnIndex="2" GridPane.rowIndex="13" />
                         <Label text="Use Pruned Invariants" GridPane.columnIndex="1" GridPane.rowIndex="15" />
                         <CheckBox fx:id="usePrunedInvariants" mnemonicParsing="false" selected="true" text="Yes/No" GridPane.columnIndex="2" GridPane.rowIndex="15" />
@@ -111,6 +122,8 @@
                         <Separator prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="10" />
                         <Label text="Execution Order" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                         <ComboBox fx:id="executionOrder" prefWidth="250.0" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        <Label text="Analyze Model" GridPane.columnIndex="1" GridPane.rowIndex="19" />
+                        <CheckBox fx:id="analyzeModel" mnemonicParsing="false" selected="true" text="Yes/No" GridPane.columnIndex="2" GridPane.rowIndex="19" />
                      </children>
                   </GridPane>
                </content>
@@ -161,8 +174,10 @@
                     </columns>
                   </TableView>
                </content></Tab>
-            <Tab text="Data" />
         </tabs>
       </TabPane>
    </center>
+   <left>
+      <ListView fx:id="experiments" BorderPane.alignment="CENTER" />
+   </left>
 </BorderPane>

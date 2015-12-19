@@ -4,7 +4,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 
 import JVM.ReactisJVM;
@@ -13,12 +15,19 @@ import ca.pfv.spmf.algorithms.associationrules.TopKRules_and_TNR.RuleG;
 import ca.pfv.spmf.datastructures.redblacktree.RedBlackTree;
 import experiment.dataExtraction.CoverageParser;
 import experiment.dataExtraction.TestCaseParser;
+import experiment.dataMining.AllRuleMiner;
 import experiment.dataMining.AssociationRuleMining;
+import experiment.dataMining.ParallelStreamPruner;
+import experiment.dataMining.Parser;
+import experiment.dataMining.Pruner;
+import experiment.dataMining.TopKRuleMiner;
+import experiment.modelAnalyzis.SimulinkParser;
 import experiment.models.ExperimentData;
 import experiment.models.ExperimentManagerData;
 import experiment.models.IterationData;
 import experiment.models.StoppingCriterion;
 import experiment.models.invariants.Implication;
+import experiment.models.modelAnalyzis.Connection;
 import experiment.models.reactis.ReactisPort;
 import experiment.reactis.utils.EditRSI;
 
@@ -26,6 +35,7 @@ public class Experiment implements Runnable {
 	FileIoService fileIo = new FileIoService();
 	private ExperimentData data = new ExperimentData();
 	private ExperimentManagerData experimentManagerData;
+	private Map<String, Connection> connected;
 
 	// Initialization
 
@@ -37,7 +47,6 @@ public class Experiment implements Runnable {
 		setTempFolder();
 		setRsiFiles();
 	}
-	
 	private void setStopping() {
 		data.setStoppingCriterion(experimentManagerData.getStoppingCriterion());
 		data.cutoff.set(experimentManagerData.getIterationEnd());
@@ -135,8 +144,24 @@ public class Experiment implements Runnable {
 		copyFiles();
 		setupTestSuite();
 		setupRSIFile();
+		analyzeModel();
 	}
 
+	private void analyzeModel() {
+		File model = new File(experimentManagerData.getModelFile());
+		List<String> inputs = new ArrayList<>();
+		for (ReactisPort inport : experimentManagerData.getReactisData().getInports()) {
+			inputs.add(inport.getName());
+		}
+		
+		List<String> outputs = new ArrayList<>();
+		for (ReactisPort outport : experimentManagerData.getReactisData().getOutports()) {
+			outputs.add(outport.getName());
+		}
+		
+		SimulinkParser parser = new SimulinkParser();
+		connected = parser.whichInAndOutputsAreConnected(model, inputs, outputs);
+	}
 	private void setupRSIFile() {
 		EditRSI readRsi = new EditRSI();
 		readRsi.cleanAssertions(data.getBaseRsiFile(), data.getRsiFile());
@@ -155,6 +180,8 @@ public class Experiment implements Runnable {
 	private void copyFiles() {
 		File temp = new File(data.getTempFolderPath());
 		File model = new File(experimentManagerData.getModelFile());
+		
+		
 		File rsi = new File(experimentManagerData.getRsiFile());
 
 		fileIo.copyFileToFolder(model, temp);
@@ -162,6 +189,11 @@ public class Experiment implements Runnable {
 
 		data.setModelFile(data.getTempFolderPath() + model.getName());
 		data.setBaseRsiFile(data.getTempFolderPath() + rsi.getName());
+		
+		if(!experimentManagerData.getModelSupport().isEmpty()){
+			File support = new File(experimentManagerData.getModelSupport());
+			fileIo.copyFileToFolder(support, temp);
+		}
 	}
 
 	private void setupFolders() {
@@ -198,67 +230,22 @@ public class Experiment implements Runnable {
 		return timeInSeconds;
 	}
 	
-	/*private void runDataMining(IterationData iterationData) {
-		AssociationRuleMining miner = new AssociationRuleMining();
-		miner.printForAssociationRuleMining(data.getTestSuite(),
-				getAssociationRuleMiningInputPath());
-		
-		RedBlackTree<RuleG> rules = miner.mineRulesPruned(getAssociationRuleMiningInputPath(),
-				getAssociationRuleMiningoutputPath(), experimentManagerData.getMaxInvariants());
-
-		if(experimentManagerData.isPrune()){
-			List<RuleG> prunedInvariants = miner.pruneRuleGComplete(rules);
-			List<Implication> implications = miner.parseMiningOutputs(prunedInvariants);
-			saveDataMiningData(implications, implications);
-			iterationData.setNumberOfInvariants(implications.size());
-			iterationData.setNumberOfPrunedInvariants(implications.size());
-		}
-		else{
-			List<Implication> implications = miner.parseMiningOutputs(rules);
-			saveDataMiningData(implications, null);
-			iterationData.setNumberOfInvariants(implications.size());
-			iterationData.setNumberOfPrunedInvariants(0);
-		}	
-		CoverageParser parser = new CoverageParser();
-		parser.parseCoverage(
-				getIterationFolderPath(data.iteration.get()) + data.COVERAGE,
-				iterationData.getCovarage());
-
-		data.invalidatedInvariants.set(iterationData.getCovarage().getAssertion()
-				.getCovered());
-		
-		if(data.getLastIterationData() != null){
-			data.getLastIterationData().setNumbeOfInvalidatedInvariants(data.invalidatedInvariants.get());
-		}
-
-		
-		iterationData.setNumbeOfInvalidatedInvariants(data.invalidatedInvariants.get());
-	}*/
-
 	private void runDataMining(IterationData iterationData) {
-		AssociationRuleMining miner = new AssociationRuleMining();
-		miner.printForAssociationRuleMining(data.getTestSuite(),
-				getAssociationRuleMiningInputPath());
+		Parser parser = new Parser(connected);
+		Pruner pruner = new ParallelStreamPruner();
+		AssociationRuleMining miner = new AllRuleMiner(parser, pruner, experimentManagerData.isAnalyze());
+		//AssociationRuleMining miner = new TopKRuleMiner(parser, pruner);
 		
-		PriorityQueue<RuleG> rules = miner.mineRules(
-				getAssociationRuleMiningInputPath(),
-				getAssociationRuleMiningoutputPath(), experimentManagerData.getMaxInvariants());
-
-		if(experimentManagerData.isPrune()){
-			List<RuleG> prunedInvariants = miner.pruneRuleGComplete(rules);
-			List<Implication> implications = miner.parseMiningOutputs(prunedInvariants);
-			saveDataMiningData(implications, implications);
-			iterationData.setNumberOfInvariants(implications.size());
-			iterationData.setNumberOfPrunedInvariants(implications.size());
-		}
-		else{
-			List<Implication> implications = miner.parseMiningOutputs(rules);
-			saveDataMiningData(implications, null);
-			iterationData.setNumberOfInvariants(implications.size());
-			iterationData.setNumberOfPrunedInvariants(0);
-		}	
-		CoverageParser parser = new CoverageParser();
-		parser.parseCoverage(
+		List<Implication> implications = miner.runDataMining(data.getTestSuite(), experimentManagerData.getMaxInvariants(), 1);
+		saveDataMiningData(implications);
+		
+		iterationData.setNumberOfInvariants(implications.size());
+		iterationData.setNumberOfPrunedInvariants(implications.size());
+		data.invariants.set(implications.size());
+		data.getTestSuite().setImplications(implications);
+		
+		CoverageParser coverageParser = new CoverageParser();
+		coverageParser.parseCoverage(
 				getIterationFolderPath(data.iteration.get()) + data.COVERAGE,
 				iterationData.getCovarage());
 
@@ -269,24 +256,12 @@ public class Experiment implements Runnable {
 			data.getLastIterationData().setNumbeOfInvalidatedInvariants(data.invalidatedInvariants.get());
 		}
 
-		
 		iterationData.setNumbeOfInvalidatedInvariants(data.invalidatedInvariants.get());
 	}
 
-	private void saveDataMiningData(List<Implication> implications,
-			List<Implication> prunedImplications) {
-		if (experimentManagerData.isPrune()) {
-			data.invariants.set(prunedImplications.size());
-			saveImplications(prunedImplications,
-					getIterationFolderPath(data.iteration.get()) + data.PRUNED_INVARIANTS);
-			data.getTestSuite().setImplicationsPruned(prunedImplications);
-		} else {
-			data.invariants.set(implications.size());
-			saveImplications(implications, getIterationFolderPath(data.iteration.get())
-					+ data.INVARIANTS);
-			data.getTestSuite().setImplications(implications);
-
-		}
+	private void saveDataMiningData(List<Implication> implications) {
+		saveImplications(implications, getIterationFolderPath(data.iteration.get())
+				+ data.INVARIANTS);
 
 	}
 

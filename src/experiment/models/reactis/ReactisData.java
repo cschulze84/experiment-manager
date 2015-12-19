@@ -1,5 +1,8 @@
 package experiment.models.reactis;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import experiment.reactis.utils.EditRSI;
@@ -8,23 +11,23 @@ public class ReactisData {
 
 	private String modelName = new String();
 	private String modelNameASCII = new String();
-	private ObservableList<ReactisPort> inports = FXCollections.observableArrayList();
-	private ObservableList<ReactisPort> outports = FXCollections.observableArrayList();
+	private List<ReactisPort> inports = new ArrayList<>();
+	private List<ReactisPort> outports  = new ArrayList<>();
 	private String connect = new String();
 
-	public ObservableList<ReactisPort> getInports() {
+	public List<ReactisPort> getInports() {
 		return inports;
 	}
 
-	public void setInports(ObservableList<ReactisPort> inports) {
+	public void setInports(List<ReactisPort> inports) {
 		this.inports = inports;
 	}
 
-	public ObservableList<ReactisPort> getOutports() {
+	public List<ReactisPort> getOutports() {
 		return outports;
 	}
 
-	public void setOutports(ObservableList<ReactisPort> outports) {
+	public void setOutports(List<ReactisPort> outports) {
 		this.outports = outports;
 	}
 

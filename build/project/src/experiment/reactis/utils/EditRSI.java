@@ -42,12 +42,7 @@ public class EditRSI {
 		
 		List<Implication> implications;
 		
-		if(prune){
-			implications = testSuite.getImplicationsPruned();
-		}
-		else{
-			implications = testSuite.getImplications();
-		}
+		implications = testSuite.getImplications();
 		
 		if(implications == null || implications.isEmpty()){
 			return;
@@ -170,6 +165,9 @@ public class EditRSI {
 
 			// Get Inports
 			parseInports(properties, data);
+			
+			// Get Inports
+			parseConfiguration(properties, data);
 
 			parseAssertion(properties, data);
 			
@@ -187,6 +185,8 @@ public class EditRSI {
 
 		return null;
 	}
+
+	
 
 	private void parseName(Properties properties, ReactisData data) {
 		String modelNameAscii = properties.getProperty("Systems", "");
@@ -235,7 +235,8 @@ public class EditRSI {
 	}
 
 	private void parseInports(Properties properties, ReactisData data) {
-		String inportsArray[] = properties.getProperty("Inports").split(",");
+		String propertyString = properties.getProperty("Inports", "");
+		String inportsArray[] = propertyString.split(",");
 
 		for (String inportString : inportsArray) {
 			Inport inport = new Inport();
@@ -247,6 +248,26 @@ public class EditRSI {
 			data.getInports().add(inport);
 		}
 
+	}
+	
+	private void parseConfiguration(Properties properties, ReactisData data) {
+		String propertyString = properties.getProperty("Vars", "");
+		
+		if(propertyString.isEmpty()){
+			return;
+		}
+		String inportsArray[] = propertyString.split(",");
+
+		for (String inportString : inportsArray) {
+			Inport inport = new Inport();
+			inport.setName(StringProcessor
+					.replaceStringFromReactis(inportString));
+			inport.setNameASCII(inportString);
+			inport.setData(properties.getProperty(inport.getNameASCII(), ""));
+			inport.setConfiguration(true);
+
+			data.getInports().add(inport);
+		}
 	}
 
 	public String cleanAssertions(String originalRSI, String newRSI) {

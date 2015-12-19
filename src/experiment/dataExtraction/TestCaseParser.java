@@ -77,7 +77,7 @@ public class TestCaseParser {
 			}
 			if(header){
 				for (String headerString : csvRecord) {
-					suite.getHeader().add(headerString);
+					suite.getHeader().add(headerString.replace("|", ""));
 				}
 				header = false;
 				firstPart = false;

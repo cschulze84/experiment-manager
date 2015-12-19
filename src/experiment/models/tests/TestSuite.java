@@ -154,4 +154,8 @@ public class TestSuite {
 		}
 		return false;
 	}
+	
+	public List<String> getInputs() {
+		return inputs;
+	}
 }
